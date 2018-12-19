@@ -543,6 +543,18 @@ ELSE()
   SET(ALBANY_ATO FALSE)
 ENDIF()
 
+# Set optional dependency on 3DM, defaults to Disabled
+OPTION(ENABLE_3DM "Flag to turn on 3DM source code" OFF)
+IF (ENABLE_3DM)
+  SET(ALBANY_APF TRUE)
+  ADD_DEFINITIONS(-DALBANY_3DM)
+  MESSAGE("-- 3DM       is Enabled, compiling with -DALBANY_WAFERLG")
+  SET(ALBANY_3DM TRUE)
+ELSE()
+  MESSAGE("-- 3DM       is NOT Enabled.")
+  SET(ALBANY_3DM FALSE)
+ENDIF()
+
 # set optional dependency on Peridigm peridynamics code, defaults to Disabled
 OPTION(ENABLE_PERIDIGM "Flag to turn on Albany-Peridigm code coupling" OFF)
 IF(ENABLE_PERIDIGM)
