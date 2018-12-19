@@ -249,6 +249,17 @@ Albany::ProblemFactory::create()
     strategy = rcp(new Albany::LinearElasticityModalProblem(problemParams, paramLib, 3));
   }
 #endif
+#ifdef ALBANY_3DM
+  else if (method == "_3DManufacturing 1D") {
+    strategy = rcp(new Albany::_3DManufacturing(problemParams, paramLib, 1, commT));
+  }
+  else if (method == "_3DManufacturing 2D") {
+    strategy = rcp(new Albany::_3DManufacturing(problemParams, paramLib, 2, commT));
+  }
+  else if (method == "_3DManufacturing 3D") {
+    strategy = rcp(new Albany::_3DManufacturing(problemParams, paramLib, 3, commT));
+  }
+#endif
 #ifdef ALBANY_LANDICE
   else if (LandIce::ProblemFactory::hasProblem(method)) {
     LandIce::ProblemFactory felix_factory(problemParams,discretizationParams,paramLib);
