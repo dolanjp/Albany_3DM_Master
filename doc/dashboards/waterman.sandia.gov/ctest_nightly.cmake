@@ -1,6 +1,16 @@
 
+#cmake_minimum_required (VERSION 2.8)
+set (CTEST_DO_SUBMIT ON)
+set (CTEST_TEST_TYPE Nightly)
+
+# What to build and test
+set (DOWNLOAD_TRILINOS FALSE)
+set (BUILD_TRILINOS FALSE)
+set (DOWNLOAD_ALBANY TRUE) 
+set (BUILD_ALBANY TRUE) 
+
 # Begin User inputs:
-set (CTEST_SITE "ride.sandia.gov" ) # generally the output of hostname
+set (CTEST_SITE "waterman.sandia.gov" ) # generally the output of hostname
 set (CTEST_DASHBOARD_ROOT "$ENV{TEST_DIRECTORY}" ) # writable path
 set (CTEST_SCRIPT_DIRECTORY "$ENV{SCRIPT_DIRECTORY}" ) # where the scripts live
 set (CTEST_CMAKE_GENERATOR "Unix Makefiles" ) # What is your compilation apps ?
@@ -49,7 +59,7 @@ set (Albany_REPOSITORY_LOCATION git@github.com:gahansen/Albany.git)
 set (Trilinos_REPOSITORY_LOCATION git@github.com:trilinos/Trilinos.git)
 
 #set (NVCC_WRAPPER "$ENV{jenkins_trilinos_dir}/packages/kokkos/config/nvcc_wrapper")
-set (NVCC_WRAPPER ${CTEST_SCRIPT_DIRECTORY}/nvcc_wrapper_p100)
+set (NVCC_WRAPPER ${CTEST_SCRIPT_DIRECTORY}/nvcc_wrapper_volta)
 set (CUDA_MANAGED_FORCE_DEVICE_ALLOC 1)
 set( CUDA_LAUNCH_BLOCKING 1)
 
@@ -155,8 +165,8 @@ if (BUILD_TRILINOS)
   #
   # Configure the Trilinos/SCOREC build
   #
-  set_property (GLOBAL PROPERTY SubProject IKTRideTrilinosCUDA)
-  set_property (GLOBAL PROPERTY Label IKTRideTrilinosCUDA)
+  set_property (GLOBAL PROPERTY SubProject IKTWatermanTrilinosCUDA)
+  set_property (GLOBAL PROPERTY Label IKTWatermanTrilinosCUDA)
 
     #"-DCMAKE_CXX_COMPILER:FILEPATH=${MPI_BASE_DIR}/bin/mpicxx" 
     #"-DCMAKE_C_COMPILER:FILEPATH=${MPI_BASE_DIR}/bin/mpicc" 
@@ -204,8 +214,8 @@ if (BUILD_TRILINOS)
     "-DKokkos_ENABLE_OpenMP:BOOL=OFF"
     "-DKokkos_ENABLE_Pthread:BOOL=OFF"
     "-DKokkos_ENABLE_Serial:BOOL=ON"
-    "-DKokkos_ENABLE_TESTS:BOOL=ON"
-    "-DKOKKOS_ARCH:STRING='Power8\\;Pascal60'"
+    "-DKokkos_ENABLE_TESTS:BOOL=OFF"
+    "-DKOKKOS_ARCH:STRING='Power9\\;Volta70'"
     "-DTPL_ENABLE_Thrust:BOOL=ON"
     "-DTPL_ENABLE_CUDA:BOOL=ON"
     "-DTPL_ENABLE_CUSPARSE:BOOL=ON"
@@ -267,7 +277,7 @@ if (BUILD_TRILINOS)
     "-DTrilinos_ENABLE_Piro:BOOL=ON"
     "-DTrilinos_ENABLE_Rythmos:BOOL=ON"
     "-DTrilinos_ENABLE_SEACAS:BOOL=ON"
-    "-DTrilinos_ENABLE_SEACASAprepro_lib:BOOL=ON"
+    "-DTrilinos_ENABLE_SEACASAprepro_lib:BOOL=OFF"
     "-DTrilinos_ENABLE_STKDoc_tests:BOOL=OFF"
     "-DTrilinos_ENABLE_STKIO:BOOL=ON"
     "-DTrilinos_ENABLE_STKMesh:BOOL=ON"
@@ -316,8 +326,8 @@ if (BUILD_TRILINOS)
   # Build the rest of Trilinos and install everything
   #
 
-  set_property (GLOBAL PROPERTY SubProject IKTRideTrilinosCUDA)
-  set_property (GLOBAL PROPERTY Label IKTRideTrilinosCUDA)
+  set_property (GLOBAL PROPERTY SubProject IKTWatermanTrilinosCUDA)
+  set_property (GLOBAL PROPERTY Label IKTWatermanTrilinosCUDA)
   #set (CTEST_BUILD_TARGET all)
   set (CTEST_BUILD_TARGET install)
 
@@ -356,8 +366,8 @@ if (BUILD_ALBANY)
   # Configure the Albany build 
   #
 
-  set_property (GLOBAL PROPERTY SubProject IKTRideAlbanyCUDA)
-  set_property (GLOBAL PROPERTY Label IKTRideAlbanyCUDA)
+  set_property (GLOBAL PROPERTY SubProject IKTWatermanAlbanyCUDA)
+  set_property (GLOBAL PROPERTY Label IKTWatermanAlbanyCUDA)
   
   set (CONFIGURE_OPTIONS
     "-DALBANY_TRILINOS_DIR:FILEPATH=${CTEST_BINARY_DIRECTORY}/TrilinosInstall"
@@ -365,11 +375,16 @@ if (BUILD_ALBANY)
     "-DENABLE_DEMO_PDES:BOOL=ON"
     "-DENABLE_LANDICE:BOOL=ON"
     "-DENABLE_ALBANY_EPETRA_EXE:BOOL=OFF"
+    "-DENABLE_QCAD:BOOL=ON"
     "-DENABLE_LCM:BOOL=OFF"
     "-DENABLE_AERAS:BOOL=ON"
+    "-DENABLE_SG:BOOL=OFF"
+    "-DENABLE_ENSEMBLE:BOOL=OFF"
     "-DENABLE_ATO:BOOL=OFF"
+    "-DENABLE_MOR:BOOL=OFF"
     "-DENABLE_PERFORMANCE_TESTS:BOOL=OFF"
     "-DALBANY_LIBRARIES_ONLY=OFF"
+    "-DENABLE_INSTALL:BOOL=OFF"
     "-DENABLE_KOKKOS_UNDER_DEVELOPMENT:BOOL=ON"
     "-DENABLE_TAN_FAD_TYPE:STRING=SLFad"
     "-DALBANY_TAN_SLFAD_SIZE=100"
@@ -381,7 +396,7 @@ if (BUILD_ALBANY)
 
   CTEST_CONFIGURE(
     BUILD "${CTEST_BINARY_DIRECTORY}/AlbBuild"
-    SOURCE "/home/projects/albany/ride/repos/Albany"
+    SOURCE "/home/projects/albany/waterman/repos/Albany"
     OPTIONS "${CONFIGURE_OPTIONS}"
     RETURN_VALUE HAD_ERROR
     )
@@ -404,8 +419,8 @@ if (BUILD_ALBANY)
   # Build the rest of Albany and install everything
   #
 
-  set_property (GLOBAL PROPERTY SubProject IKTRideAlbanyCUDA)
-  set_property (GLOBAL PROPERTY Label IKTRideAlbanyCUDA)
+  set_property (GLOBAL PROPERTY SubProject IKTWatermanAlbanyCUDA)
+  set_property (GLOBAL PROPERTY Label IKTWatermanAlbanyCUDA)
   set (CTEST_BUILD_TARGET all)
   #set (CTEST_BUILD_TARGET install)
 
@@ -441,7 +456,7 @@ if (BUILD_ALBANY)
   # Run Albany tests
   #
 
-  set (CTEST_TEST_TIMEOUT 2100)
+  set (CTEST_TEST_TIMEOUT 1500)
   CTEST_TEST (
     BUILD "${CTEST_BINARY_DIRECTORY}/AlbBuild"
     RETURN_VALUE HAD_ERROR)
